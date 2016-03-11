@@ -4,7 +4,7 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>reesmo-writer</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>Reesmo Java Writer</name>
@@ -71,14 +71,9 @@
 			<version>2.7.1-1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.5.1</version>
+			<groupId>com.mashape.unirest</groupId>
+			<artifactId>unirest-java</artifactId>
+			<version>1.4.7</version>
 		</dependency>
 	</dependencies>
 	
