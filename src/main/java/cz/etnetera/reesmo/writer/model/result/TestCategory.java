@@ -14,10 +14,10 @@
  */
 package cz.etnetera.reesmo.writer.model.result;
 
-public enum TestCategory {
+public class TestCategory {
 
-	FUNCTIONAL,
-	PERFORMANCE,
-	UNIT
+	public static final String FUNCTIONAL = "FUNCTIONAL";
+	public static final String PERFORMANCE = "PERFORMANCE";
+	public static final String UNIT = "UNIT";
 	
 }

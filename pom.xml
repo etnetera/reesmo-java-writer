@@ -4,7 +4,7 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>reesmo-writer</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<packaging>jar</packaging>
 
 	<name>Reesmo Java Writer</name>

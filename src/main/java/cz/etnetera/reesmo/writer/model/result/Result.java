@@ -83,9 +83,9 @@ public class Result extends AuditedModel {
 	
 	private List<String> errors = new ArrayList<>();
 	
-	private List<TestCategory> categories = new ArrayList<>();
+	private List<String> categories = new ArrayList<>();
 	
-	private List<TestType> types = new ArrayList<>();
+	private List<String> types = new ArrayList<>();
 	
 	private List<ResultAttachment> attachments = new ArrayList<>();
 	
@@ -251,19 +251,19 @@ public class Result extends AuditedModel {
 		this.errors = errors;
 	}
 
-	public List<TestCategory> getCategories() {
+	public List<String> getCategories() {
 		return categories;
 	}
 
-	public void setCategories(List<TestCategory> categories) {
+	public void setCategories(List<String> categories) {
 		this.categories = categories;
 	}
 
-	public List<TestType> getTypes() {
+	public List<String> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<TestType> types) {
+	public void setTypes(List<String> types) {
 		this.types = types;
 	}
 
@@ -303,12 +303,12 @@ public class Result extends AuditedModel {
 		this.errors = errors.stream().map(e -> createErrorFromThrowable(e)).collect(Collectors.toList());
 	}
 	
-	public Result addCategory(TestCategory category) {
+	public Result addCategory(String category) {
 		categories.add(category);
 		return this;
 	}
 	
-	public Result addType(TestType type) {
+	public Result addType(String type) {
 		types.add(type);
 		return this;
 	}
