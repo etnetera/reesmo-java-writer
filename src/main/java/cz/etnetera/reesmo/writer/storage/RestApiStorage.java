@@ -22,7 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,21 +40,28 @@ public class RestApiStorage extends Storage {
 
 	public static final String PROPERTY_NAME = "restapi";
 
-	private static final String METHOD_RESULT_CREATE = "/api/results/create";
+	protected static final String METHOD_RESULT_CREATE = "/api/results/create";
 
-	private static final String METHOD_RESULT_CREATE_PROJECT_KEY = "/api/results/create/{projectKey}";
+	protected static final String METHOD_RESULT_CREATE_PROJECT_KEY = "/api/results/create/{projectKey}";
 
-	private static final String METHOD_RESULT_DELETE = "/api/results/delete/{resultId}";
+	protected static final String METHOD_RESULT_DELETE = "/api/results/delete/{resultId}";
 
-	private static final String METHOD_RESULT_ATTACHMENT_CREATE = "/api/results/attachment/create/{resultId}";
+	protected static final String METHOD_RESULT_ATTACHMENT_CREATE = "/api/results/attachment/create/{resultId}";
 
-	private static final String VIEW_RESULT_DETAIL = "/result/detail/{resultId}";
+	protected static final String VIEW_RESULT_DETAIL = "/result/detail/{resultId}";
+	
+	protected static final Map<String, String> FIXED_CONTENT_TYPES;
 
-	private String endpoint;
+	protected String endpoint;
 
-	private String username;
+	protected String username;
 
-	private String password;
+	protected String password;
+	
+	static {
+		FIXED_CONTENT_TYPES = new HashMap<>();
+		FIXED_CONTENT_TYPES.put("log", "text/plain");
+	}
 
 	public RestApiStorage(String endpoint, String username, String password) throws StorageException {
 		if (endpoint == null || endpoint.isEmpty())
@@ -137,14 +146,9 @@ public class RestApiStorage extends Storage {
 			// directory is not stored, just paths
 			return;
 		}
-
-		String contentType = URLConnection.guessContentTypeFromName(file.getName());
-		if (contentType == null) {
-			contentType = "application/octet-stream";
-		}
 		
 		MultipartBody body = Unirest.post(getUrl(METHOD_RESULT_ATTACHMENT_CREATE).replace("{resultId}", result.getId()))
-				.basicAuth(username, password).header("Accept", "application/json").field("file", file, contentType);
+				.basicAuth(username, password).header("Accept", "application/json").field("file", file, getContentType(file));
 		if (path != null) {
 			body.field("path", path);
 		}
@@ -210,6 +214,23 @@ public class RestApiStorage extends Storage {
 		if (response.getStatus() != 200) {
 			throw new StorageException("Wrong status code " + response.getStatus() + " when requesting url " + url);
 		}
+	}
+	
+	protected String getContentType(File file) {
+		String contentType = null;
+		String filename = file.getName();
+		int extensionSepIndex = filename.lastIndexOf(".");
+		if (extensionSepIndex > -1) {
+			String extension = filename.substring(extensionSepIndex + 1);
+			contentType = FIXED_CONTENT_TYPES.get(extension.toLowerCase());
+			if (contentType == null) {
+				contentType = URLConnection.guessContentTypeFromName(file.getName());
+			}
+		}
+		if (contentType == null) {
+			contentType = "application/octet-stream";
+		}
+		return contentType;
 	}
 
 }
