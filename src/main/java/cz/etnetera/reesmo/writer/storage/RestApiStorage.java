@@ -16,15 +16,12 @@ package cz.etnetera.reesmo.writer.storage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,19 +46,12 @@ public class RestApiStorage extends Storage {
 	protected static final String METHOD_RESULT_ATTACHMENT_CREATE = "/api/results/attachment/create/{resultId}";
 
 	protected static final String VIEW_RESULT_DETAIL = "/result/detail/{resultId}";
-	
-	protected static final Map<String, String> FIXED_CONTENT_TYPES;
 
 	protected String endpoint;
 
 	protected String username;
 
 	protected String password;
-	
-	static {
-		FIXED_CONTENT_TYPES = new HashMap<>();
-		FIXED_CONTENT_TYPES.put("log", "text/plain");
-	}
 
 	public RestApiStorage(String endpoint, String username, String password) throws StorageException {
 		if (endpoint == null || endpoint.isEmpty())
@@ -85,7 +75,7 @@ public class RestApiStorage extends Storage {
 			url = getUrl(METHOD_RESULT_CREATE_PROJECT_KEY).replace("{projectKey}", projectKey);
 
 		result = requestEntity(result, url);
-		getLogger().info("Result created " + result.getId() + " "
+		getLogger().info("Result created " + result.getName() + " " + result.getId() + " "
 				+ getUrl(VIEW_RESULT_DETAIL).replace("{resultId}", result.getId()));
 
 		if (attachments != null) {
@@ -109,12 +99,14 @@ public class RestApiStorage extends Storage {
 	protected void addResultAttachment(final Result result, Object attachment) throws StorageException {
 		File file = null;
 		String path = null;
+		String contentType = null;
 		if (attachment instanceof File) {
 			file = (File) attachment;
-		} else if (attachment instanceof FileWithPath) {
-			FileWithPath fileWithPath = (FileWithPath) attachment;
+		} else if (attachment instanceof ExtendedFile) {
+			ExtendedFile fileWithPath = (ExtendedFile) attachment;
 			file = fileWithPath.getFile();
 			path = fileWithPath.getPath();
+			contentType = fileWithPath.getContentType();
 		} else {
 			throw new StorageException("Unsupported attachment type " + attachment.getClass());
 		}
@@ -133,7 +125,7 @@ public class RestApiStorage extends Storage {
 						FileVisitResult res = super.visitFile(file, attrs);
 						String relativePath = rootPath + "/" + root.relativize(file).normalize().toString();
 						try {
-							addResultAttachment(result, new FileWithPath(file.toFile(), relativePath));
+							addResultAttachment(result, ExtendedFile.withPath(file.toFile(), relativePath));
 						} catch (StorageException e) {
 							throw new IOException(e);
 						}
@@ -148,9 +140,12 @@ public class RestApiStorage extends Storage {
 		}
 		
 		MultipartBody body = Unirest.post(getUrl(METHOD_RESULT_ATTACHMENT_CREATE).replace("{resultId}", result.getId()))
-				.basicAuth(username, password).header("Accept", "application/json").field("file", file, getContentType(file));
+				.basicAuth(username, password).header("Accept", "application/json").field("file", file);
 		if (path != null) {
 			body.field("path", path);
+		}
+		if (contentType != null) {
+			body.field("contentType", contentType);
 		}
 
 		HttpResponse<String> response;
@@ -171,7 +166,7 @@ public class RestApiStorage extends Storage {
 			throw new StorageException("Unable to parse result attachment from response", e);
 		}
 
-		getLogger().info("Result attachment stored " + resultAttachment.getId());
+		getLogger().info("Result attachment stored " + resultAttachment.getPath() + " " + resultAttachment.getId());
 	}
 
 	protected String getUrl(String uri) {
@@ -214,23 +209,6 @@ public class RestApiStorage extends Storage {
 		if (response.getStatus() != 200) {
 			throw new StorageException("Wrong status code " + response.getStatus() + " when requesting url " + url);
 		}
-	}
-	
-	protected String getContentType(File file) {
-		String contentType = null;
-		String filename = file.getName();
-		int extensionSepIndex = filename.lastIndexOf(".");
-		if (extensionSepIndex > -1) {
-			String extension = filename.substring(extensionSepIndex + 1);
-			contentType = FIXED_CONTENT_TYPES.get(extension.toLowerCase());
-			if (contentType == null) {
-				contentType = URLConnection.guessContentTypeFromName(file.getName());
-			}
-		}
-		if (contentType == null) {
-			contentType = "application/octet-stream";
-		}
-		return contentType;
 	}
 
 }

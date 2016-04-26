@@ -17,6 +17,10 @@ package cz.etnetera.reesmo.writer;
 public enum Bool {
 
 	TRUE,
-	FALSE
+	FALSE;
+	
+	public static Bool valueOfString(String value) {
+		return valueOf(value.toUpperCase());
+	}
 	
 }

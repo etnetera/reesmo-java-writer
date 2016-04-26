@@ -16,15 +16,30 @@ package cz.etnetera.reesmo.writer.storage;
 
 import java.io.File;
 
-public class FileWithPath {
+public class ExtendedFile {
 
 	protected File file;
 	
 	protected String path;
+	
+	protected String contentType;
+	
+	public static ExtendedFile withPath(File file, String path) {
+		return new ExtendedFile(file, path, null);
+	}
+	
+	public static ExtendedFile withContentType(File file, String contentType) {
+		return new ExtendedFile(file, null, contentType);
+	}
+	
+	public static ExtendedFile withPathAndContentType(File file, String path, String contentType) {
+		return new ExtendedFile(file, path, contentType);
+	}
 
-	public FileWithPath(File file, String path) {
+	public ExtendedFile(File file, String path, String contentType) {
 		this.file = file;
 		this.path = path;
+		this.contentType = contentType;
 	}
 
 	public File getFile() {
@@ -35,9 +50,13 @@ public class FileWithPath {
 		return path;
 	}
 
+	public String getContentType() {
+		return contentType;
+	}
+
 	@Override
 	public String toString() {
-		return "File: " + file + ", Path: " + path;
+		return "ExtendedFile [file=" + file + ", path=" + path + ", contentType=" + contentType + "]";
 	}
 
 }

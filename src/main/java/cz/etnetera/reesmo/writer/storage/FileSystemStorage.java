@@ -69,8 +69,8 @@ public class FileSystemStorage extends Storage {
 					} catch (IOException e) {
 						throw new StorageException("Unable to copy result attachment file: " + attachment, e);
 					}
-				} else if (attachment instanceof FileWithPath) {
-					FileWithPath file = (FileWithPath) attachment;
+				} else if (attachment instanceof ExtendedFile) {
+					ExtendedFile file = (ExtendedFile) attachment;
 					File targetFile = new File(resultAttachmentDir, file.getPath());
 					targetFile.mkdirs();
 					try {

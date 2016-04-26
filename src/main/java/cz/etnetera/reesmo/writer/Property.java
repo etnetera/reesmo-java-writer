@@ -65,7 +65,7 @@ public enum Property {
 		if (value != null) {
 			switch (this) {
 			case ENABLED:
-				return Bool.valueOf(value);
+				return Bool.valueOfString(value);
 			case STORAGE:
 				if (value.equals(DummyStorage.class.getName()) || value.equals(DummyStorage.class.getSimpleName())
 						|| value.equals(DummyStorage.PROPERTY_NAME)) {

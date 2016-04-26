@@ -156,7 +156,7 @@ abstract public class Storage {
 					throw new StorageException("Both result project key and id are empty");
 			}
 			result = createResult(projectKey, result, attachments);
-			getLogger().info("Result added " + result.getId());
+			getLogger().info("Result added " + result.getName() + " " + result.getId());
 		} catch (Exception e) {
 			try {
 				if (result != null && result.getId() != null) {
